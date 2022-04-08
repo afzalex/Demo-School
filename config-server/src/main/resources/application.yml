@@ -1,0 +1,9 @@
+server:
+  port: ${PORT:7312}
+
+spring:
+  application:
+    name: config-server
+
+  cloud.config.server.git:
+    uri: ${user.home}/source/plf-config-store
