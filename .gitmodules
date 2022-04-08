@@ -1,0 +1,3 @@
+[submodule "ui"]
+	path = ui
+	url = ../demo-school-ui.git

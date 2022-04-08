@@ -12,3 +12,5 @@ out/
 
 .data
 .bash_history
+.ssh
+

@@ -34,7 +34,7 @@ fi
 git remote add "${DEMOBOT_REMOTE}" ${gitRepoUrl}
 export GIT_REPOSITORY_USERNAME=${GITEA_ADMIN_USERNAME}
 export GIT_REPOSITORY_TOKEN=${GITEA_ADMIN_PASSWORD}
-auto-git.sh push -u "${DEMOBOT_REMOTE}" main
+auto-git.sh push "${DEMOBOT_REMOTE}" main
 
 #ls -l1 | while read dir; do
 #  if [ -d "${dir}" ]; then
