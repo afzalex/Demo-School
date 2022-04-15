@@ -1,6 +1,30 @@
 version: '3.9'
 
 services:
+  eureka-server:
+    build: ./eureka-server
+    container_name: eureka-server
+    ports:
+      - "7311:7311"
+    environment:
+      - "CONFIG_SERVER_URI=http://config-server:7312/"
+      - "EUREKA_SERVER_URI=http://eureka-server:7311/eureka"
+    env_file:
+      - application-variables.env
+
+  config-server:
+    build: ./config-server
+    container_name: config-server
+    ports:
+      - "7312:7312"
+    environment:
+      - "GIT_CONFIG_STORE_URL=http://gitea-server:3000/demoadmin/demo-school-config-store.git"
+
+  teacher-service:
+    build: ./teacher-service
+    container_name: teacher-service
+    ports:
+      - "7331:7331"
 
   gitea-server:
     build: ./gitea-server
@@ -13,13 +37,19 @@ services:
       - "7301:3000"
       - "7302:7302" # Setup of gitea is done with 7302 as ssh
 
-  eureka-server:
-    build: ./eureka-server
-    container_name: eureka-server
-
-  config-server:
-    build: ./config-server
-    container_name: config-server
+  jenkins-server:
+    build: ./jenkins-server
+    container_name: jenkins-server
+    ports:
+      - "7303:8080"
+      - "7304:5000"
+    environment:
+      - "Duser.timezone=Asia/Calcutta"
+    volumes:
+      - "./.data/jenkins:/var/jenkins_home"
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock"
 
   demo-helper:
     build: ./demo-helper
@@ -32,5 +62,4 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./:/root
       - ./demo-helper/scripts:/scripts             #TODO: Temporary code
-
 

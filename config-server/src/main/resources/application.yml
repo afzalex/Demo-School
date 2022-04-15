@@ -2,8 +2,8 @@ server:
   port: ${PORT:7312}
 
 spring:
-  application:
-    name: config-server
-
+  application.name: config-server
+  output.ansi.enabled: ALWAYS
   cloud.config.server.git:
-    uri: ${user.home}/source/plf-config-store
+    search-paths: '{application}'
+    uri: ${GIT_CONFIG_STORE_URL}

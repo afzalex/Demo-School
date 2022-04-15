@@ -1,6 +1,6 @@
 #!/usr/bin/expect -f
 
-set timeout 15
+set timeout 5
 set argsCount [llength $argv]
 lassign $argv arg1 arg2 arg3 arg4 arg5
 
@@ -19,10 +19,10 @@ if { $argsCount == 1} {
     exit
 }
 
-expect -re 'Username for ' {
+expect -re "Username for " {
   send -- "${env(GIT_REPOSITORY_USERNAME)}\n"
 }
-expect -re 'Password for ' {
+expect -re "Password for " {
   send -- "${env(GIT_REPOSITORY_TOKEN)}\n"
 }
 

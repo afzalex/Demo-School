@@ -1,3 +1,10 @@
 [submodule "ui"]
 	path = ui
 	url = ../demo-school-ui.git
+[submodule "config-store"]
+	path = config-store
+	url = ../demo-school-config-store.git
+[submodule "teacher-service"]
+	path = teacher-service
+	url = ../demo-school-teacher-service.git
+
