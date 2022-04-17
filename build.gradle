@@ -1,0 +1,35 @@
+plugins {
+    id 'maven-publish'
+}
+
+allprojects {
+
+    apply plugin: "java"
+    apply plugin: "maven-publish"
+
+    group 'com.fz.demo-school'
+    version = '0.0.4'
+
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
+}
+
+subprojects {
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+                versionMapping {
+                    usage('java-api') {
+                        fromResolutionOf('runtimeClasspath')
+                    }
+                    usage('java-runtime') {
+                        fromResolutionResult()
+                    }
+                }
+            }
+        }
+    }
+}

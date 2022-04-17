@@ -8,3 +8,6 @@
 	path = teacher-service
 	url = ../demo-school-teacher-service.git
 
+[submodule "school-service"]
+	path = school-service
+	url = ../demo-school-school-service.git

@@ -61,5 +61,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./:/root
-      - ./demo-helper/scripts:/scripts             #TODO: Temporary code
+      - ./demo-helper/scripts:/scripts            # TODO: Temporary code
+      - $HOME/.m2:/root/.m2                       # Using host's maven directory
+      - $HOME/.gradle:/root/.gradle               # Using host's gradle directory
 

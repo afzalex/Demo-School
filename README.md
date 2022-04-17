@@ -16,12 +16,12 @@ Port Number : 7331
 
 ### Gitea
 Administrator Username : demoadmin  
-Administrator Password : demo#123
+Administrator Password : demo#123  
 Port Number : 7301
 
 ### Jenkins Server
 Administrator Username : demoadmin  
-Administrator Password : demo#123
+Administrator Password : demo#123  
 Port Number : 7303
 
 

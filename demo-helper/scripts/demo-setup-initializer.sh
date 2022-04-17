@@ -39,6 +39,7 @@ if [[ $STRICTMODE ]] && [[ $? ]]; then exit 1; fi
 
 pushd . > /dev/null
 cd /root
+
 gitRepoUrl=$(tea repos ls -o simple | grep demo-school.git | grep -oE 'git\@.*\.git' | sed -E "s/git\@.*\:[0-9]?/http:\/\/${GITEA_HOST}:${GITEA_PORT}\//")
 
 echo "Git URL for demo-school : ${gitRepoUrl}"
@@ -96,3 +97,5 @@ done
 
 
 popd > /dev/null
+
+tail -f /dev/null

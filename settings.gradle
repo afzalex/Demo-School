@@ -1,0 +1,5 @@
+rootProject.name = 'demo-school'
+include 'core'
+include 'config-server'
+include 'eureka-server'
+include 'teacher-service'
