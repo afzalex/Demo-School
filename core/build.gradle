@@ -2,6 +2,9 @@ plugins {
 	id 'org.springframework.boot' version '2.6.6'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
+
+	id "com.github.davidmc24.gradle.plugin.avro" version "1.2.0"
+	id 'maven-publish'
 }
 
 group = 'com.fz.demoschool'
@@ -17,10 +20,17 @@ configurations {
 repositories {
 	mavenCentral()
 	mavenLocal()
+	maven {
+		url "https://packages.confluent.io/maven"
+	}
 }
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	implementation group: 'org.glassfish.jersey.core', name: 'jersey-client', version: '3.0.0'
+	implementation 'org.apache.avro:avro:1.10.2'
+	implementation "io.confluent:kafka-avro-serializer:6.1.0"
 }

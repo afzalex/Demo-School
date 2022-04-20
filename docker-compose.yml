@@ -1,55 +1,118 @@
 version: '3.9'
 
 services:
+
   eureka-server:
     build: ./eureka-server
-    container_name: eureka-server
+    container_name: ${EUREKA_SERVER_CONTAINER_NAME}
     ports:
-      - "7311:7311"
+      - "${EUREKA_SERVER_PORT}:${EUREKA_SERVER_PORT}"
     environment:
-      - "CONFIG_SERVER_URI=http://config-server:7312/"
-      - "EUREKA_SERVER_URI=http://eureka-server:7311/eureka"
-    env_file:
-      - application-variables.env
+      - PORT=${EUREKA_SERVER_PORT}
+      - "CONFIG_SERVER_URI=http://config-server:8312/"
+      - "EUREKA_SERVER_URI=http://${EUREKA_SERVER_CONTAINER_NAME}:${EUREKA_SERVER_PORT}/eureka"
 
   config-server:
     build: ./config-server
-    container_name: config-server
+    container_name: ${CONFIG_SERVER_CONTAINER_NAME}
     ports:
-      - "7312:7312"
+      - "${CONFIG_SERVER_PORT}:${CONFIG_SERVER_PORT}"
     environment:
-      - "GIT_CONFIG_STORE_URL=http://gitea-server:3000/demoadmin/demo-school-config-store.git"
+      - PORT=${CONFIG_SERVER_PORT}
+      - "GIT_CONFIG_STORE_URL=http://${GITEA_SERVER_CONTAINER_NAME}:3000/demoadmin/demo-school-config-store.git"
 
   teacher-service:
     build: ./teacher-service
-    container_name: teacher-service
+    container_name: ${TEACHER_SERVICE_CONTAINER_NAME}
     ports:
-      - "7331:7331"
+      - "${TEACHER_SERVICE_PORT}:${TEACHER_SERVICE_PORT}"
+    environment:
+      - PORT=${TEACHER_SERVICE_PORT}
+
+  school-service:
+    build: ./school-service
+    container_name: ${SCHOOL_SERVICE_CONTAINER_NAME}
+    ports:
+      - "${SCHOOL_SERVICE_PORT}:${SCHOOL_SERVICE_PORT}"
+    environment:
+      - PORT=${SCHOOL_SERVICE_PORT}
+      - KAFKA_BROKERCONNECT=kafka-server:29092
+      - SCHEMA_REGISTRY_LISTENERS=http://schema-registry:8081
 
   gitea-server:
     build: ./gitea-server
-    container_name: gitea-server
+    container_name: ${GITEA_SERVER_CONTAINER_NAME}
     volumes:
       - ./.data/gitea:/data
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     ports:
-      - "7301:3000"
-      - "7302:7302" # Setup of gitea is done with 7302 as ssh
+      - "${GITEA_SERVER_PORT}:3000"
+      - "${GITEA_SERVER_PORT_SSH}:8302" # Setup of gitea is done with 8302 as ssh
 
   jenkins-server:
     build: ./jenkins-server
-    container_name: jenkins-server
+    container_name: ${JENKINS_SERVER_CONTAINER_NAME}
     ports:
-      - "7303:8080"
-      - "7304:5000"
+      - "${JENKINS_SERVER_PORT}:8080"
+      - "${JENKINS_SERVER_PORT2}:5000"
     environment:
-      - "Duser.timezone=Asia/Calcutta"
+      - "Duser.timezone=${CURRENT_TIMEZONE}"
     volumes:
       - "./.data/jenkins:/var/jenkins_home"
       - "/etc/timezone:/etc/timezone:ro"
       - "/etc/localtime:/etc/localtime:ro"
       - "/var/run/docker.sock:/var/run/docker.sock"
+
+  zookeeper-server:
+    image: zookeeper
+    restart: "no"
+    container_name: ${ZOOKEEPER_SERVER_CONTAINER_NAME}
+    hostname: ${ZOOKEEPER_SERVER_CONTAINER_NAME}
+    ports:
+      - ${ZOOKEEPER_SERVER_PORT}:2181
+    environment:
+      ZOO_MY_ID: 1
+      # ZOO_SERVERS: server.1=zookeeper:2888:3888;2181 server.2=zoo2:2888:3888;2181 server.3=zoo3:2888:3888;2181
+
+  kafka-server:
+    build: ./kafka-server
+    depends_on:
+      - zookeeper-server
+    ports:
+      - ${KAFKA_SERVER_PORT}:9092
+    restart: "no"
+    container_name: ${KAFKA_SERVER_CONTAINER_NAME}
+    hostname: ${${KAFKA_SERVER_CONTAINER_NAME}}
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://${KAFKA_SERVER_CONTAINER_NAME}:29092,OUTSIDE://localhost:${KAFKA_SERVER_PORT}
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: INSIDE://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-server:2181
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+
+  kafdrop-server:
+    image: obsidiandynamics/kafdrop:latest
+    depends_on:
+      - kafka-server
+    container_name: ${KAFDROP_SERVER_CONTAINER_NAME}
+    ports:
+      - ${KAFDROP_SERVER_PORT}:9000
+    environment:
+      - KAFKA_BROKERCONNECT=kafka-server:29092
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.1.0
+    hostname: ${SCHEMA_REGISTRY_CONTAINER_NAME}
+    container_name: ${SCHEMA_REGISTRY_CONTAINER_NAME}
+    depends_on:
+      - kafka-server
+    ports:
+      - "${SCHEMA_REGISTRY_PORT}:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: ${SCHEMA_REGISTRY_CONTAINER_NAME}
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "${KAFKA_SERVER_CONTAINER_NAME}:29092"
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
 
   demo-helper:
     build: ./demo-helper

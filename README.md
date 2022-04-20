@@ -4,25 +4,39 @@
 
 | Name  | Port Range  |
 |-------|-------------|
-| CI-CD | 7301 - 7309 |
-| Servers | 7311 - 7329 |
-| Application | 7331 and above |
+| CI-CD | 8301 - 8309 |
+| Servers | 8311 - 8329 |
+| Application | 8331 and above |
 
 ---
 
 ### Teacher Service
-Port Number : 7331
+Port Number : 8331
 
+### Kafka Server
+Port Number : 8314
+
+### Kafdrop Server
+Port Number : 8315
+
+### Zookeeper Server
+Port Number : 8313
+
+### Config Server
+Port Number : 8312
+
+### Eureka Server
+Port Number : 8311
 
 ### Gitea
 Administrator Username : demoadmin  
 Administrator Password : demo#123  
-Port Number : 7301
+Port Number : 8301
 
 ### Jenkins Server
 Administrator Username : demoadmin  
 Administrator Password : demo#123  
-Port Number : 7303
+Port Number : 8303
 
 
 

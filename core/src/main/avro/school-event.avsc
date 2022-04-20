@@ -1,0 +1,26 @@
+{
+  "name": "SchoolEvent",
+  "namespace": "com.fz.demoschool.avro",
+  "type": "record",
+  "fields": [
+    {
+      "name": "uuid",
+      "type": {
+        "avro.java.string": "String",
+        "type": "string"
+      }
+    }, {
+      "name": "name",
+      "type": {
+        "avro.java.string": "String",
+        "type": "string"
+      }
+    }, {
+      "name": "event",
+      "type": {
+        "avro.java.string": "String",
+        "type": "string"
+      }
+    }
+  ]
+}

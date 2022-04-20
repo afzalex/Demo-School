@@ -19,12 +19,16 @@ if { $argsCount == 1} {
     exit
 }
 
-expect -re "Username for " {
-  send -- "${env(GIT_REPOSITORY_USERNAME)}\n"
-}
-expect -re "Password for " {
-  send -- "${env(GIT_REPOSITORY_TOKEN)}\n"
+expect {
+     -re "Username for " {
+        send -- "${env(GIT_REPOSITORY_USERNAME)}\n"
+        expect -re "Password for " {
+            send -- "${env(GIT_REPOSITORY_TOKEN)}\n"
+        }
+        expect eof
+    }
+    eof
 }
 
+
 send_user "\n"
-expect eof
