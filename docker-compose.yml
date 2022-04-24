@@ -8,9 +8,13 @@ services:
     ports:
       - "${EUREKA_SERVER_PORT}:${EUREKA_SERVER_PORT}"
     environment:
+      - TZ=${CURRENT_TIMEZONE}
       - PORT=${EUREKA_SERVER_PORT}
       - "CONFIG_SERVER_URI=http://config-server:8312/"
       - "EUREKA_SERVER_URI=http://${EUREKA_SERVER_CONTAINER_NAME}:${EUREKA_SERVER_PORT}/eureka"
+      - DATA_DIRECTORY=/appdata
+    volumes:
+      - ${DATA_DIRECTORY}:/appdata:consistent
 
   config-server:
     build: ./config-server
@@ -18,8 +22,12 @@ services:
     ports:
       - "${CONFIG_SERVER_PORT}:${CONFIG_SERVER_PORT}"
     environment:
+      - TZ=${CURRENT_TIMEZONE}
       - PORT=${CONFIG_SERVER_PORT}
       - "GIT_CONFIG_STORE_URL=http://${GITEA_SERVER_CONTAINER_NAME}:3000/demoadmin/demo-school-config-store.git"
+      - DATA_DIRECTORY=/appdata
+    volumes:
+      - ${DATA_DIRECTORY}:/appdata:consistent
 
   teacher-service:
     build: ./teacher-service
@@ -27,7 +35,11 @@ services:
     ports:
       - "${TEACHER_SERVICE_PORT}:${TEACHER_SERVICE_PORT}"
     environment:
+      - TZ=${CURRENT_TIMEZONE}
       - PORT=${TEACHER_SERVICE_PORT}
+      - DATA_DIRECTORY=/appdata
+    volumes:
+      - ${DATA_DIRECTORY}:/appdata:consistent
 
   school-service:
     build: ./school-service
@@ -35,15 +47,19 @@ services:
     ports:
       - "${SCHOOL_SERVICE_PORT}:${SCHOOL_SERVICE_PORT}"
     environment:
+      - TZ=${CURRENT_TIMEZONE}
       - PORT=${SCHOOL_SERVICE_PORT}
       - KAFKA_BROKERCONNECT=kafka-server:29092
       - SCHEMA_REGISTRY_LISTENERS=http://schema-registry:8081
+      - DATA_DIRECTORY=/appdata
+    volumes:
+      - ${DATA_DIRECTORY}:/appdata:consistent
 
   gitea-server:
     build: ./gitea-server
     container_name: ${GITEA_SERVER_CONTAINER_NAME}
     volumes:
-      - ./.data/gitea:/data
+      - ./${DATA_DIRECTORY}/gitea:/data
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     ports:
@@ -59,9 +75,9 @@ services:
     environment:
       - "Duser.timezone=${CURRENT_TIMEZONE}"
     volumes:
-      - "./.data/jenkins:/var/jenkins_home"
       - "/etc/timezone:/etc/timezone:ro"
       - "/etc/localtime:/etc/localtime:ro"
+      - "./${DATA_DIRECTORY}/jenkins:/var/jenkins_home"
       - "/var/run/docker.sock:/var/run/docker.sock"
 
   zookeeper-server:
@@ -91,6 +107,7 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper-server:2181
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
 
+
   kafdrop-server:
     image: obsidiandynamics/kafdrop:latest
     depends_on:
@@ -114,17 +131,80 @@ services:
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "${KAFKA_SERVER_CONTAINER_NAME}:29092"
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
 
+  elasticsearch:
+    build:
+      context: elasticsearch/
+      args:
+        ELASTIC_VERSION: ${ELASTIC_VERSION}
+    container_name: ${ELASTIC_CONTAINER_NAME}
+    volumes:
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro,z
+      - ./${DATA_DIRECTORY}/elasticsearch:/usr/share/elasticsearch/data:z
+    ports:
+      - "${ELASTIC_PORT}:9200"
+      - "${ELASTIC_PORT2}:9300"
+    environment:
+      ES_JAVA_OPTS: -Xmx256m -Xms256m
+      # Bootstrap password.
+      # Used to initialize the keystore during the initial startup of
+      # Elasticsearch. Ignored on subsequent runs.
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:-}
+      # Use single node discovery in order to disable production mode and avoid bootstrap checks.
+      # see: https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
+      discovery.type: single-node
+
+  logstash:
+    build:
+      context: logstash/
+      args:
+        ELASTIC_VERSION: ${ELASTIC_VERSION}
+    container_name: ${LOGSTASH_CONTAINER_NAME}
+    volumes:
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro,Z
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro,Z
+      - ${DATA_DIRECTORY}:/appdata:consistent,ro
+    ports:
+      - "${LOGSTASH_PORT}:5044"
+      - "${LOGSTASH_PORT2}:5000/tcp"
+      - "${LOGSTASH_PORT2}:5000/udp"
+      - "${LOGSTASH_PORT3}:9600"
+    environment:
+      LS_JAVA_OPTS: -Xmx256m -Xms256m
+      LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD:-}
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    build:
+      context: kibana/
+      args:
+        ELASTIC_VERSION: ${ELASTIC_VERSION}
+    container_name: ${KIBANA_CONTAINER_NAME}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro,Z
+    ports:
+      - "${KIBANA_PORT}:5601"
+    environment:
+      KIBANA_SYSTEM_PASSWORD: ${KIBANA_SYSTEM_PASSWORD:-}
+    depends_on:
+      - elasticsearch
+
   demo-helper:
     build: ./demo-helper
     container_name: demo-helper
     environment:
-      - "GITEA_HOST=gitea-server"
-      - "GITEA_ADMIN_USERNAME=demoadmin"
-      - "GITEA_ADMIN_PASSWORD=demo#123"
+      GITEA_HOST: gitea-server
+      GITEA_ADMIN_USERNAME: demoadmin
+      GITEA_ADMIN_PASSWORD: "demo#123"
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:-}
+      LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD:-}
+      KIBANA_SYSTEM_PASSWORD: ${KIBANA_SYSTEM_PASSWORD:-}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./:/root
       - ./demo-helper/scripts:/scripts            # TODO: Temporary code
       - $HOME/.m2:/root/.m2                       # Using host's maven directory
       - $HOME/.gradle:/root/.gradle               # Using host's gradle directory
+      - ${DATA_DIRECTORY}/demohelper/state:/scripts/state
 

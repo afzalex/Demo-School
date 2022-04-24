@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <springProperty scope="context" name="applicationName" source="spring.application.name" />
+    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss} [${applicationName},%X{traceId:-na},%X{spanId:-na}][%thread] %-5level %logger - %msg%n" />
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>${LOG_PATTERN}</Pattern>
+        </layout>
+    </appender>
+
+    <property name="LOG_FILE" value="app" />
+    <property name="LOG_DIRECTORY" value="${DATA_DIRECTORY}/${applicationName}" />
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIRECTORY}/${LOG_FILE}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <!-- daily rollover -->
+<!--            <fileNamePattern>${LOG_DIRECTORY}/${LOG_FILE}.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>-->
+            <fileNamePattern>${LOG_DIRECTORY}/${LOG_FILE}.backup%i.gz</fileNamePattern>
+            <minIndex>1</minIndex>
+            <maxIndex>9</maxIndex>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>1MB</maxFileSize>
+        </triggeringPolicy>
+        <encoder>
+            <Pattern>${LOG_PATTERN}</Pattern>
+        </encoder>
+    </appender>
+
+    <root level="info">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+    </root>
+
+    <!-- Log everything at the TRACE level -->
+    <logger name="com.fz.demoschool" level="trace" additivity="false">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+    </logger>
+</configuration>

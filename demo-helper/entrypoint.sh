@@ -6,4 +6,6 @@ echo "Started demo helper"
 
 #/bin/tail -F /dev/null
 
+./scripts/setup-elk.sh
+
 ./scripts/demo-setup-initializer.sh
