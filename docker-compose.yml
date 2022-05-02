@@ -1,5 +1,13 @@
 version: '3.9'
 
+x-service-environments: &appServiceEnvironments
+  CONFIG_SERVER_URI: 'http://${CONFIG_SERVER_CONTAINER_NAME}:${CONFIG_SERVER_PORT}/'
+  EUREKA_SERVER_URI: "http://${EUREKA_SERVER_CONTAINER_NAME}:${EUREKA_SERVER_PORT}/eureka"
+  DATA_DIRECTORY: /appdata
+  TZ: "${CURRENT_TIMEZONE}"
+  spring_profiles_active: 'docker'
+
+
 services:
 
   eureka-server:
@@ -8,11 +16,8 @@ services:
     ports:
       - "${EUREKA_SERVER_PORT}:${EUREKA_SERVER_PORT}"
     environment:
-      - TZ=${CURRENT_TIMEZONE}
-      - PORT=${EUREKA_SERVER_PORT}
-      - "CONFIG_SERVER_URI=http://config-server:8312/"
-      - "EUREKA_SERVER_URI=http://${EUREKA_SERVER_CONTAINER_NAME}:${EUREKA_SERVER_PORT}/eureka"
-      - DATA_DIRECTORY=/appdata
+      << : *appServiceEnvironments
+      PORT: ${EUREKA_SERVER_PORT}
     volumes:
       - ${DATA_DIRECTORY}:/appdata:consistent
 
@@ -22,23 +27,30 @@ services:
     ports:
       - "${CONFIG_SERVER_PORT}:${CONFIG_SERVER_PORT}"
     environment:
-      - TZ=${CURRENT_TIMEZONE}
-      - PORT=${CONFIG_SERVER_PORT}
-      - "GIT_CONFIG_STORE_URL=http://${GITEA_SERVER_CONTAINER_NAME}:3000/demoadmin/demo-school-config-store.git"
-      - DATA_DIRECTORY=/appdata
+      << : *appServiceEnvironments
+      PORT: "${CONFIG_SERVER_PORT}"
+      GIT_CONFIG_STORE_URL: "http://${GITEA_SERVER_CONTAINER_NAME}:3000/demoadmin/demo-school-config-store.git"
+    volumes:
+      - ${DATA_DIRECTORY}:/appdata:consistent
+
+  cloud-gateway:
+    build: ./cloud-gateway
+    container_name: ${GATEWAY_SERVER_CONTAINER_NAME}
+    ports:
+      - "${GATEWAY_SERVER_PORT}:${GATEWAY_SERVER_PORT}"
+    environment:
+      << : *appServiceEnvironments
+      PORT: ${GATEWAY_SERVER_PORT}
     volumes:
       - ${DATA_DIRECTORY}:/appdata:consistent
 
   teacher-service:
     build: ./teacher-service
-#    container_name: ${TEACHER_SERVICE_CONTAINER_NAME}
+    container_name: ${TEACHER_SERVICE_CONTAINER_NAME}
     ports:
       - "${TEACHER_SERVICE_PORT}:${TEACHER_SERVICE_PORT}"
-#      - ":${TEACHER_SERVICE_PORT}"
     environment:
-      - TZ=${CURRENT_TIMEZONE}
-      - PORT=${TEACHER_SERVICE_PORT}
-      - DATA_DIRECTORY=/appdata
+      << : *appServiceEnvironments
     volumes:
       - ${DATA_DIRECTORY}:/appdata:consistent
 
@@ -48,11 +60,9 @@ services:
     ports:
       - "${SCHOOL_SERVICE_PORT}:${SCHOOL_SERVICE_PORT}"
     environment:
-      - TZ=${CURRENT_TIMEZONE}
-      - PORT=${SCHOOL_SERVICE_PORT}
-      - KAFKA_BROKERCONNECT=kafka-server:29092
-      - SCHEMA_REGISTRY_LISTENERS=http://schema-registry:8081
-      - DATA_DIRECTORY=/appdata
+      << : *appServiceEnvironments
+      KAFKA_BROKERCONNECT: kafka-server:29092
+      SCHEMA_REGISTRY_LISTENERS: http://schema-registry:8081
     volumes:
       - ${DATA_DIRECTORY}:/appdata:consistent
 
@@ -80,6 +90,8 @@ services:
       - "/etc/localtime:/etc/localtime:ro"
       - "./${DATA_DIRECTORY}/jenkins:/var/jenkins_home"
       - "/var/run/docker.sock:/var/run/docker.sock"
+    profiles:
+      - full
 
   zookeeper-server:
     image: zookeeper
