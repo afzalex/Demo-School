@@ -99,14 +99,13 @@ services:
       - ${KAFKA_SERVER_PORT}:9092
     restart: "no"
     container_name: ${KAFKA_SERVER_CONTAINER_NAME}
-    hostname: ${${KAFKA_SERVER_CONTAINER_NAME}}
+    hostname: ${KAFKA_SERVER_CONTAINER_NAME}
     environment:
       KAFKA_ADVERTISED_LISTENERS: INSIDE://${KAFKA_SERVER_CONTAINER_NAME}:29092,OUTSIDE://localhost:${KAFKA_SERVER_PORT}
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
       KAFKA_LISTENERS: INSIDE://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
       KAFKA_ZOOKEEPER_CONNECT: zookeeper-server:2181
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
-
 
   kafdrop-server:
     image: obsidiandynamics/kafdrop:latest
@@ -117,6 +116,9 @@ services:
       - ${KAFDROP_SERVER_PORT}:9000
     environment:
       - KAFKA_BROKERCONNECT=kafka-server:29092
+    profiles:
+      - full
+      - monitor
 
   schema-registry:
     image: confluentinc/cp-schema-registry:7.1.0
@@ -152,6 +154,9 @@ services:
       # Use single node discovery in order to disable production mode and avoid bootstrap checks.
       # see: https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
       discovery.type: single-node
+    profiles:
+      - full
+      - elk
 
   logstash:
     build:
@@ -173,6 +178,9 @@ services:
       LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD:-}
     depends_on:
       - elasticsearch
+    profiles:
+      - full
+      - elk
 
   kibana:
     build:
@@ -189,6 +197,9 @@ services:
       KIBANA_SYSTEM_PASSWORD: ${KIBANA_SYSTEM_PASSWORD:-}
     depends_on:
       - elasticsearch
+    profiles:
+      - full
+      - elk
 
   demo-helper:
     build: ./demo-helper

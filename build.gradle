@@ -1,5 +1,6 @@
 plugins {
     id 'maven-publish'
+    id 'com.jfrog.artifactory' version '4.14.1'
 }
 
 allprojects {
@@ -29,6 +30,7 @@ subprojects {
                         fromResolutionResult()
                     }
                 }
+
             }
         }
     }

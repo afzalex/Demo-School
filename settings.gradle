@@ -1,6 +1,7 @@
 rootProject.name = 'demo-school'
 include 'core'
 include 'core-logging'
+include 'core-kafka'
 include 'config-server'
 include 'eureka-server'
 include 'teacher-service'
