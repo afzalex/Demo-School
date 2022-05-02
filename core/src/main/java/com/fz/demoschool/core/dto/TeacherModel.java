@@ -1,4 +1,4 @@
-package com.fz.demoschool.core;
+package com.fz.demoschool.core.dto;
 
 import lombok.Builder;
 import lombok.Data;
