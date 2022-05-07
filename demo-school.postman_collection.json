@@ -1,0 +1,127 @@
+{
+	"info": {
+		"_postman_id": "2ff53710-60da-409b-a68d-de28f280a95f",
+		"name": "demo-school",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Config Data",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:7312/teacher-service/loca",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7312",
+					"path": [
+						"teacher-service",
+						"loca"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Teacher Entity",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8331/teacher/ping",
+					"host": [
+						"localhost"
+					],
+					"port": "8331",
+					"path": [
+						"teacher",
+						"ping"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ping School Service",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8332/school/ping",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8332",
+					"path": [
+						"school",
+						"ping"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ping School Service via Gateway",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8330/school/ping",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8330",
+					"path": [
+						"school",
+						"ping"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get List of Schools",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8332/school",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8332",
+					"path": [
+						"school"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get School Info",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8332/school/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8332",
+					"path": [
+						"school",
+						"2"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
