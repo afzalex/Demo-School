@@ -6,4 +6,4 @@ spring:
   output.ansi.enabled: ALWAYS
   cloud.config.server.git:
     search-paths: '{application}'
-    uri: file://///Users/mafzal/source/demo-school
+    uri: file://${user.home}/source/demo-school-config-store

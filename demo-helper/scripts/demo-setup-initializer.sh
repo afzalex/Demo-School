@@ -97,5 +97,3 @@ done
 
 
 popd > /dev/null
-
-tail -f /dev/null

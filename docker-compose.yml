@@ -10,17 +10,6 @@ x-service-environments: &appServiceEnvironments
 
 services:
 
-  eureka-server:
-    build: ./eureka-server
-    container_name: ${EUREKA_SERVER_CONTAINER_NAME}
-    ports:
-      - "${EUREKA_SERVER_PORT}:${EUREKA_SERVER_PORT}"
-    environment:
-      << : *appServiceEnvironments
-      PORT: ${EUREKA_SERVER_PORT}
-    volumes:
-      - ${DATA_DIRECTORY}:/appdata:consistent
-
   config-server:
     build: ./config-server
     container_name: ${CONFIG_SERVER_CONTAINER_NAME}
@@ -30,6 +19,17 @@ services:
       << : *appServiceEnvironments
       PORT: "${CONFIG_SERVER_PORT}"
       GIT_CONFIG_STORE_URL: "http://${GITEA_SERVER_CONTAINER_NAME}:3000/demoadmin/demo-school-config-store.git"
+    volumes:
+      - ${DATA_DIRECTORY}:/appdata:consistent
+
+  eureka-server:
+    build: ./eureka-server
+    container_name: ${EUREKA_SERVER_CONTAINER_NAME}
+    ports:
+      - "${EUREKA_SERVER_PORT}:${EUREKA_SERVER_PORT}"
+    environment:
+      << : *appServiceEnvironments
+      PORT: ${EUREKA_SERVER_PORT}
     volumes:
       - ${DATA_DIRECTORY}:/appdata:consistent
 
