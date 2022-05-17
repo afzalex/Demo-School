@@ -54,6 +54,16 @@ services:
     volumes:
       - ${DATA_DIRECTORY}:/appdata:consistent
 
+  teacher-service-multi:
+    build: ./teacher-service
+    environment:
+      << : *appServiceEnvironments
+    volumes:
+      - ${DATA_DIRECTORY}:/appdata:consistent
+    deploy:
+      mode: replicated
+      replicas: 2
+
   school-service:
     build: ./school-service
     container_name: ${SCHOOL_SERVICE_CONTAINER_NAME}

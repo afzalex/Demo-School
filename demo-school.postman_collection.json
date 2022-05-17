@@ -11,22 +11,22 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:7312/teacher-service/loca",
+					"raw": "http://localhost:8312/teacher-service/local",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "7312",
+					"port": "8312",
 					"path": [
 						"teacher-service",
-						"loca"
+						"local"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "Create Teacher Entity",
+			"name": "Ping Teacher Service",
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -85,6 +85,26 @@
 			"response": []
 		},
 		{
+			"name": "Ping Teacher Service via Gateway",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8330/school/ping",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8330",
+					"path": [
+						"school",
+						"ping"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Get List of Schools",
 			"request": {
 				"method": "GET",
@@ -104,7 +124,35 @@
 			"response": []
 		},
 		{
-			"name": "Get School Info",
+			"name": "Create a School Entity",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Modern School Rishikesh\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8332/school",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8332",
+					"path": [
+						"school"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get School Info with Teachers info",
 			"request": {
 				"method": "GET",
 				"header": [],
