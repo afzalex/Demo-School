@@ -7,3 +7,5 @@ include 'eureka-server'
 include 'cloud-gateway'
 include 'teacher-service'
 include 'school-service'
+include 'payment-service'
+

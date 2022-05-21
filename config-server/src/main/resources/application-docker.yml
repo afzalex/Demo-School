@@ -1,3 +1,4 @@
 spring:
   cloud.config.server.git:
-    uri: ${GIT_CONFIG_STORE_URL}
+#    uri: ${GIT_CONFIG_STORE_URL}
+    uri:  https://github.com/afzalex/demo-school-config-store.git

@@ -25,7 +25,8 @@ do
 done
 
 docker volume create demo-setup-volume-tea
-DEMO_NETWORK=$(docker inspect gitea-server | jq -r '.[0].NetworkSettings.Networks | to_entries | .[0].key')
+DEMO_NETWORK=$(docker inspect ${GITEA_HOST} | jq -r '.[0].NetworkSettings.Networks | to_entries | .[0].key')
+echo "demo-school network is \"${DEMO_NETWORK}\""
 alias tea="docker run --rm --network ${DEMO_NETWORK} -v demo-setup-volume-tea:/app tgerczei/tea"
 
 tea logout demoadmin
@@ -34,8 +35,14 @@ tea login add -u ${GITEA_URL} --user ${GITEA_ADMIN_USERNAME} --password "${GITEA
 tea login default ${GITEA_ADMIN_USERNAME}
 
 
-tea repos create --name ${ROOT_REPO_NAME}
-if [[ $STRICTMODE ]] && [[ $? ]]; then exit 1; fi
+alreadyPresentRepos=$(tea repos -o csv | tail -n+2 | awk -F, '{print $4}' | tr -d '"')
+
+
+# If repository does not exist
+if [[ -z $( echo "$alreadyPresentRepos" | grep "${ROOT_REPO_NAME}.git" ) ]]; then
+  tea repos create --name ${ROOT_REPO_NAME}
+  if [[ $STRICTMODE ]] && [[ $? ]]; then exit 1; fi
+fi
 
 pushd . > /dev/null
 cd /root
@@ -54,15 +61,20 @@ export GIT_REPOSITORY_TOKEN=${GITEA_ADMIN_PASSWORD}
 ./auto-git.sh push --force "${DEMOBOT_REMOTE}" main
 
 echo -e "\n\nProcessing submodules"
-cat .gitmodules | grep '\[submodule.*\]' | sed 's/.*\"\(.*\)\".*/\1/' |
+cat .gitmodules | grep '\[submodule.*\]' | sed 's/.*\"\(.*\)\".*/\1/' | sed 's/$/\nconfig-store/' |
 while read submoduleName; do
   echo "processing submodule $submoduleName"
   gitRepoName=$(git config -f .gitmodules --get "submodule.${submoduleName}.url" | sed 's/\.\.\/\(.*\)\.git/\1/')
   gitRepoPath=$(git config -f .gitmodules --get "submodule.${submoduleName}.path")
 
-  echo "creating repository : ${gitRepoName}"
-  tea repos create --name "${gitRepoName}"
-  if [[ $STRICTMODE ]] && [[ $? ]]; then exit 1; fi
+  # If repository does not exist
+  if [[ -z $( echo "$alreadyPresentRepos" | grep "${ROOT_REPO_NAME}.git" ) ]]; then
+    echo "creating repository : ${gitRepoName}"
+    tea repos create --name "${gitRepoName}"
+    if [[ $STRICTMODE ]] && [[ $? ]]; then exit 1; fi
+  else
+    echo "repository already exists : ${gitRepoName}"
+  fi
 
   gitRepoUrl=$(tea repos ls -o simple | grep "${gitRepoName}" | grep -oE 'git\@.*\.git' | sed -E "s/git\@.*\:[0-9]?/http:\/\/${GITEA_HOST}:${GITEA_PORT}\//")
   echo "Repo url in gitea : ${gitRepoUrl}"
