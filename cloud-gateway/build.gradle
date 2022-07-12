@@ -4,7 +4,7 @@ plugins {
 	id 'java'
 }
 
-group = 'com.fz.demo-school'
+group = 'com.fz.demoschool'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 

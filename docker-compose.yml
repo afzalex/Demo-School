@@ -65,6 +65,8 @@ services:
     deploy:
       mode: replicated
       replicas: 2
+    profiles:
+      - full
 
   school-service:
     build: ./school-service
@@ -97,6 +99,8 @@ services:
     ports:
       - "${GITEA_SERVER_PORT}:3000"
       - "${GITEA_SERVER_PORT_SSH}:8302" # Setup of gitea is done with 8302 as ssh
+    profiles:
+      - full
 
   jenkins-server:
     build: ./jenkins-server
@@ -261,6 +265,13 @@ services:
       ME_CONFIG_MONGODB_SERVER: ${MONGO_CONTAINER_NAME}
     profiles:
       - full
+
+  axon-server:
+    image: axoniq/axonserver
+    container_name: ${AXON_SERVER_CONTAINER_NAME}
+    ports:
+      - ${AXON_SERVER_PORT}:8024
+      - ${AXON_SERVER_PORT2}:8124
 
   demo-helper:
     build: ./demo-helper
