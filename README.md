@@ -32,6 +32,17 @@ Port Number : 8311
 Administrator Username : demoadmin  
 Administrator Password : demo#123  
 Port Number : 8301
+```bash
+# Create or update init-data-directory
+GITEA_PATH=gitea-server
+pushd .
+cd .data
+tar -czvf init-data-directory.tar.gz gitea
+cd ..
+mv "${GITEA_PATH}/init-data-directory.gz" .data/init-data-directory.gz.bak
+mv .data/init-data-directory.tar.gz "${GITEA_PATH}/"
+popd
+```
 
 ### Jenkins Server
 Administrator Username : demoadmin  
